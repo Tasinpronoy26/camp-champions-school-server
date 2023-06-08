@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 
 
@@ -35,6 +35,7 @@ async function run() {
 
     const dataBaseOfSports = client.db('camp-champions-school').collection('sports');
     const dataBaseOfSelectedClasses = client.db('camp-champions-school').collection('classes');
+    const dataBaseOfUsers = client.db('camp-champions-school').collection('users');
 
 
     /*SPORTS POPULAR*/
@@ -44,6 +45,35 @@ async function run() {
       const result = await cursor.toArray()
       res.send(result);
     })
+
+
+
+    /*COLLECT USER INFO*/
+
+    app.post('/users', async (req, res) => {
+
+      const users = req.body;
+      const query = { email: users.email }
+      const alreadyUserExisted = await dataBaseOfUsers.findOne(query)
+      if (alreadyUserExisted) {
+
+        return res.send({ message: "Already existed!!" })
+      }
+
+      const result = await dataBaseOfUsers.insertOne(users);
+      console.log(result);
+      res.send(result);
+    })
+
+    /*USER DATA GET*/
+
+    app.get('/users', async (req, res) => {
+
+      const cursor = dataBaseOfUsers.find()
+      const result = await cursor.toArray()
+      res.send(result);
+    })
+
 
 
     /*SELECTED CLASSES INSERT IN DATABASE COLLECTION*/
@@ -60,13 +90,31 @@ async function run() {
 
     app.get('/classes', async (req, res) => {
 
-      const cursor = dataBaseOfSelectedClasses.find()
-      const result = await cursor.toArray()
-      res.send(result);
+      const email = req.query.email;
+      if (!email) {
+        res.send([])
+      }
+      else {
+
+        const cursor = dataBaseOfSelectedClasses.find()
+        const result = await cursor.toArray()
+        res.send(result);
+
+      }
+
     })
 
 
+    /*DELETE FROM DASHBOARD*/
 
+    app.delete('/classes/:id', async (req, res) => {
+
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await dataBaseOfSelectedClasses.deleteOne(query)
+      res.send(result);
+
+    })
 
 
 
