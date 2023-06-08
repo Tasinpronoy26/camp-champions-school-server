@@ -32,17 +32,39 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-    
+
     const dataBaseOfSports = client.db('camp-champions-school').collection('sports');
+    const dataBaseOfSelectedClasses = client.db('camp-champions-school').collection('classes');
 
 
-    /*SPORTS POPULAR*/ 
+    /*SPORTS POPULAR*/
     app.get('/sports', async (req, res) => {
 
-        const cursor = dataBaseOfSports.find()
-        const result = await cursor.toArray()
-        res.send(result);
+      const cursor = dataBaseOfSports.find()
+      const result = await cursor.toArray()
+      res.send(result);
     })
+
+
+    /*SELECTED CLASSES INSERT IN DATABASE COLLECTION*/
+
+    app.post('/classes', async (req, res) => {
+
+      const classes = req.body;
+      const result = await dataBaseOfSelectedClasses.insertOne(classes);
+      res.send(result);
+    })
+
+
+    /*SELECTED CLASSES SHOWING FROM DATABASE*/
+
+    app.get('/classes', async (req, res) => {
+
+      const cursor = dataBaseOfSelectedClasses.find()
+      const result = await cursor.toArray()
+      res.send(result);
+    })
+
 
 
 
@@ -62,10 +84,10 @@ run().catch(console.dir);
 
 app.get('/', (req, res) => {
 
-    res.send('Helloo');
+  res.send('Helloo');
 })
 
 app.listen(port, () => {
 
-    console.log(`port is running ${port}`)
+  console.log(`port is running ${port}`)
 })
