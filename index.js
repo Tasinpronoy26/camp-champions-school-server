@@ -75,6 +75,36 @@ async function run() {
     })
 
 
+    /*USER ADMIN CHECK*/ 
+
+    app.get('/users/admin/:email' , async (req, res) => {
+
+          const email = req.params.email;
+          const query = {email : email}
+          const user = await dataBaseOfUsers.findOne(query);
+          res.send(user)
+          console.log(user);
+    })
+
+    /*UPDATE USER ROLE*/
+    
+    app.patch('/users/admin/:id', async(req, res) => {
+        
+      const id = req.params.id;
+      const filter = {_id : new ObjectId(id)};
+      const updateDoc = {
+
+        $set: {
+          role: 'admin'
+        },
+      };
+
+      const result = await dataBaseOfUsers.updateOne(filter, updateDoc)
+      res.send(result);
+
+    })
+
+
 
     /*SELECTED CLASSES INSERT IN DATABASE COLLECTION*/
 
