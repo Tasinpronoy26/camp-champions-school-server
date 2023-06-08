@@ -4,6 +4,34 @@ const app = express();
 require('dotenv').config()
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
+const stripe = require("stripe")('sk_test_51NGr84ADFosxOhRqgtxPy2acHpaRWnvVrX89tiHMyLYtyDc6rIcPUy318J1lxGF3Uj5Bc9Q8MgnPZZktp3Ejv4qc00iB0w0yvk');
+
+app.use(express.static("public"));
+app.use(express.json());
+
+const calculateOrderAmount = (items) => {
+  // Replace this constant with a calculation of the order's amount
+  // Calculate the order total on the server to prevent
+  // people from directly manipulating the amount on the client
+  return 1400;
+};
+
+app.post("/create-payment-intent", async (req, res) => {
+  const { items } = req.body;
+
+  // Create a PaymentIntent with the order amount and currency
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: calculateOrderAmount(items),
+    currency: "usd",
+    automatic_payment_methods: {
+      enabled: true,
+    },
+  });
+
+  res.send({
+    clientSecret: paymentIntent.client_secret,
+  });
+});
 
 
 
@@ -75,23 +103,23 @@ async function run() {
     })
 
 
-    /*USER ADMIN CHECK*/ 
+    /*USER ADMIN CHECK*/
 
-    app.get('/users/admin/:email' , async (req, res) => {
+    app.get('/users/admin/:email', async (req, res) => {
 
-          const email = req.params.email;
-          const query = {email : email}
-          const user = await dataBaseOfUsers.findOne(query);
-          res.send(user)
-          console.log(user);
+      const email = req.params.email;
+      const query = { email: email }
+      const user = await dataBaseOfUsers.findOne(query);
+      res.send(user)
+      console.log(user);
     })
 
     /*UPDATE USER ADMIN ROLE*/
-    
-    app.patch('/users/admin/:id', async(req, res) => {
-        
+
+    app.patch('/users/admin/:id', async (req, res) => {
+
       const id = req.params.id;
-      const filter = {_id : new ObjectId(id)};
+      const filter = { _id: new ObjectId(id) };
       const updateDoc = {
 
         $set: {
@@ -125,8 +153,8 @@ async function run() {
         res.send([])
       }
       else {
-         
-        
+
+
         const cursor = dataBaseOfSelectedClasses.find();
         const result = await cursor.toArray(cursor);
         res.send(result);
@@ -145,6 +173,23 @@ async function run() {
       const result = await dataBaseOfSelectedClasses.deleteOne(query)
       res.send(result);
 
+    })
+
+    /*PAYMENT*/
+
+    app.post("/create-payment-intent", async (req, res) => {
+
+      const { payment } = req.body;
+      const totalAmount = payment * 100;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: totalAmount,
+        currency: "usd",
+        payment_method_types: ['card']
+      });
+
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
     })
 
 
