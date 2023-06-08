@@ -60,7 +60,7 @@ async function run() {
         return res.send({ message: "Already existed!!" })
       }
 
-      const result = await dataBaseOfUsers.insertOne(users);
+      const result = await dataBaseOfUsers.insertOne(query);
       console.log(result);
       res.send(result);
     })
@@ -86,7 +86,7 @@ async function run() {
           console.log(user);
     })
 
-    /*UPDATE USER ROLE*/
+    /*UPDATE USER ADMIN ROLE*/
     
     app.patch('/users/admin/:id', async(req, res) => {
         
@@ -120,14 +120,15 @@ async function run() {
 
     app.get('/classes', async (req, res) => {
 
-      const email = req.query.email;
+      const email = req.body;
       if (!email) {
         res.send([])
       }
       else {
-
-        const cursor = dataBaseOfSelectedClasses.find()
-        const result = await cursor.toArray()
+         
+        
+        const cursor = dataBaseOfSelectedClasses.find();
+        const result = await cursor.toArray(cursor);
         res.send(result);
 
       }
