@@ -134,6 +134,25 @@ async function run() {
 
     })
 
+    /*UPDATE STATUS*/ 
+
+    app.patch('/classes/:id', async (req, res) => {
+
+      const id = req.params.id;
+
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          status: req.body.status === 'approved' ? 'approved' : 'decline' 
+        }
+      };
+
+      const result = await dataBaseOfSports.updateOne(filter, updateDoc)
+      res.send(result);
+      console.log(result);
+
+    })
+
 
     /*ADD CLASSES*/
 
