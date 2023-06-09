@@ -64,6 +64,7 @@ async function run() {
     const dataBaseOfSports = client.db('camp-champions-school').collection('sports');
     const dataBaseOfSelectedClasses = client.db('camp-champions-school').collection('classes');
     const dataBaseOfUsers = client.db('camp-champions-school').collection('users');
+    
 
 
     /*SPORTS POPULAR*/
@@ -87,6 +88,7 @@ async function run() {
 
         return res.send({ message: "Already existed!!" })
       }
+
 
       const result = await dataBaseOfUsers.insertOne(query);
       console.log(result);
@@ -119,18 +121,30 @@ async function run() {
     app.patch('/users/admin/:id', async (req, res) => {
 
       const id = req.params.id;
+
       const filter = { _id: new ObjectId(id) };
       const updateDoc = {
-
         $set: {
-          role: 'admin'
-        },
+          role: req.body.role === 'admin' ? 'admin' : 'instructor'
+        }
       };
 
       const result = await dataBaseOfUsers.updateOne(filter, updateDoc)
       res.send(result);
 
     })
+
+
+    /*ADD CLASSES*/
+
+    app.post('/addclass', async (req, res) => {
+
+      const classes = req.body;
+      const result = await dataBaseOfSports.insertOne(classes);
+      res.send(result);
+
+    })
+
 
 
 
