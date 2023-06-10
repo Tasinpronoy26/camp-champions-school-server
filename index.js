@@ -39,6 +39,7 @@ app.post("/create-payment-intent", async (req, res) => {
 
 app.use(cors());
 app.use(express.json());
+app.use(cors({ origin: 'http://localhost:5173' }));
 
 
 
@@ -62,9 +63,10 @@ async function run() {
     await client.connect();
 
     const dataBaseOfSports = client.db('camp-champions-school').collection('sports');
+    const dataBaseOfFeedback = client.db('camp-champions-school').collection('feedback');
     const dataBaseOfSelectedClasses = client.db('camp-champions-school').collection('classes');
     const dataBaseOfUsers = client.db('camp-champions-school').collection('users');
-    
+
 
 
     /*SPORTS POPULAR*/
@@ -91,7 +93,7 @@ async function run() {
 
 
       const result = await dataBaseOfUsers.insertOne(query);
-      console.log(result);
+      // console.log(result);
       res.send(result);
     })
 
@@ -113,7 +115,7 @@ async function run() {
       const query = { email: email }
       const user = await dataBaseOfUsers.findOne(query);
       res.send(user)
-      console.log(user);
+      // console.log(user);
     })
 
     /*UPDATE USER ADMIN ROLE*/
@@ -134,7 +136,7 @@ async function run() {
 
     })
 
-    /*UPDATE STATUS*/ 
+    /*UPDATE STATUS*/
 
     app.patch('/classes/:id', async (req, res) => {
 
@@ -143,15 +145,40 @@ async function run() {
       const filter = { _id: new ObjectId(id) };
       const updateDoc = {
         $set: {
-          status: req.body.status === 'approved' ? 'approved' : 'decline' 
+          status: req.body.status === 'approved' ? 'approved' : 'decline'
         }
       };
 
-      const result = await dataBaseOfSports.updateOne(filter, updateDoc)
+      const result = await dataBaseOfSports.updateMany(filter, updateDoc)
       res.send(result);
       console.log(result);
 
     })
+
+
+
+    /*FEEDBACK*/
+
+    app.patch('/feedback/:id', async (req, res) => {
+
+      const id = req.params.id;
+
+      const filter = { _id: new ObjectId(id) };
+      const classes = req.body;
+      const updateDoc = {
+        $set: {
+          feedback : classes.feedback
+        }
+      };
+
+      const result = await dataBaseOfSports.updateMany(filter, updateDoc)
+      res.send(result);
+      console.log(result);
+
+    })
+
+
+
 
 
     /*ADD CLASSES*/
@@ -208,6 +235,20 @@ async function run() {
 
     })
 
+    /*DELETE FROM SPORTS DATABASE*/
+
+    app.delete('/sports/:id', async (req, res) => {
+
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      console.log(query);
+      const result = await dataBaseOfSports.deleteOne(query)
+      console.log(result);
+      res.send(result);
+
+
+    })
+
     /*PAYMENT*/
 
     app.post("/create-payment-intent", async (req, res) => {
@@ -238,13 +279,11 @@ async function run() {
 run().catch(console.dir);
 
 
-
 app.get('/', (req, res) => {
 
   res.send('Helloo');
 })
 
 app.listen(port, () => {
-
-  console.log(`port is running ${port}`)
-})
+  console.log(`Server is running on port${port}`);
+});
