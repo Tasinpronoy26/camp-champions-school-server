@@ -72,8 +72,15 @@ async function run() {
     /*SPORTS POPULAR*/
     app.get('/sports', async (req, res) => {
 
-      const cursor = dataBaseOfSports.find()
-      const result = await cursor.toArray()
+      const query = req.body;
+
+      const options = {
+
+        sort: { total_students: -1 }
+      };
+
+      const cursor = dataBaseOfSports.find(query, options)
+      const result = await cursor.toArray(cursor)
       res.send(result);
     })
 
@@ -167,7 +174,7 @@ async function run() {
       const classes = req.body;
       const updateDoc = {
         $set: {
-          feedback : classes.feedback
+          feedback: classes.feedback
         }
       };
 
