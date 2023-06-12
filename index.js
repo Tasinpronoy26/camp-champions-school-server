@@ -166,7 +166,7 @@ async function run() {
 
     /*FEEDBACK*/
 
-    app.patch('/feedback/:id', async (req, res) => {
+    app.patch('/classes/:id', async (req, res) => {
 
       const id = req.params.id;
 
